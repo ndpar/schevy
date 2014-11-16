@@ -13,6 +13,12 @@ class Scheme {
         String.metaClass.isBoolean << {
             delegate.toLowerCase() in ['true', 'false']
         }
+        List.metaClass.car << {
+            delegate[0]
+        }
+        List.metaClass.cdr << {
+            delegate.size() > 1 ? delegate[1..-1] : []
+        }
     }
 
     // --------------------------------------------------------------
@@ -126,10 +132,10 @@ class Scheme {
             makeProcedure(exp[1], exp[2..-1], env)
 
         } else if (isBegin(exp)) {
-            evalSequence(exp[1..-1], env)
+            evalSequence(exp.cdr(), env)
 
         } else if (isApplication(exp)) {
-            apply(exp[0], exp[1..-1], env)
+            apply(exp[0], exp.cdr(), env)
 
         } else {
             throw new IllegalArgumentException("Unknown expression type $exp")
@@ -232,12 +238,18 @@ class Scheme {
 
     def addGlobals() {
         [
-                '+': { args -> args.inject(0) { a, i -> a + i } },
-                '-': { args -> args[0] - args[1] },
-                '*': { args -> args.inject(1) { a, i -> a * i } },
-                '/': { args -> args[0] / args[1] },
-                '=': { args -> args[0] == args[1] },
-                '<': { args -> args[0] < args[1] },
+                'list'  : { args -> args },
+                'null?' : { args -> args[0].empty },
+                'cons'  : { args -> [args[0]] + args[1] },
+                'car'   : { args -> args[0].car() },
+                'cdr'   : { args -> args[0].cdr() },
+                'equal?': { args -> args[0] == args[1] },
+                '+'     : { args -> args.inject(0) { a, i -> a + i } },
+                '-'     : { args -> args[0] - args[1] },
+                '*'     : { args -> args.inject(1) { a, i -> a * i } },
+                '/'     : { args -> args[0] / args[1] },
+                '='     : { args -> args[0] == args[1] },
+                '<'     : { args -> args[0] < args[1] }
         ]
     }
 
@@ -245,7 +257,7 @@ class Scheme {
         if (var instanceof String) env[0][var] = val
         else {
             assert var instanceof List
-            env[0][var[0]] = makeProcedure(var[1..-1], [val], env)
+            env[0][var[0]] = makeProcedure(var.cdr(), [val], env)
         }
         'ok'
     }
@@ -266,7 +278,7 @@ class Scheme {
         } else if (env[0].containsKey(var)) {
             env[0][var]
         } else {
-            lookupVariableValue(var, cdr(env))
+            lookupVariableValue(var, env.cdr())
         }
     }
 
@@ -277,9 +289,5 @@ class Scheme {
             frame[vars[i]] = vals[i]
         }
         [frame] + env
-    }
-
-    def cdr(lst) {
-        lst.size() > 1 ? lst[1..-1] : []
     }
 }

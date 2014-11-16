@@ -96,7 +96,7 @@ class SchemeTest {
     }
 
     @Test
-    void apply_prim() {
+    void apply_arithmetic() {
         assert eval('(+ 1 2 3)') == 6
         assert eval('(- 3 2)') == 1
         assert eval('(* 2 3 4)') == 24
@@ -107,8 +107,27 @@ class SchemeTest {
     }
 
     @Test
+    void appl_list() {
+        assert eval('(list 1 2 3)') == [1, 2, 3]
+        assert eval('(null? (quote))') == true
+        assert eval('(null? (cons 1 (quote)))') == false
+        assert eval('(cons 1 (cons 2 (quote)))') == [1, 2]
+        assert eval('(car (cons 1 (cons 2 (quote))))') == 1
+        assert eval('(cdr (cons 1 (cons 2 (quote))))') == [2]
+    }
+
+    @Test
     void factorial_test() {
         eval('(define factorial (lambda (n) (if (= n 1) 1 (* (factorial (- n 1)) n))))')
         assert eval('(factorial 5)') == 120
+    }
+
+    @Test
+    void norvig_test() {
+        assert eval('(define first car)') == 'ok'
+        assert eval('(define rest cdr)') == 'ok'
+        assert eval('(define count (λ (item L) (if (null? L) 0 (+ (if (equal? item (first L)) 1 0) (count item (rest L))))))') == 'ok'
+        assert eval('(count 0 (list 0 1 2 3 0 0))') == 3
+        assert eval('(count (quote the) (quote (the more the merrier the bigger the better)))') == 4
     }
 }
