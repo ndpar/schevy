@@ -264,10 +264,7 @@ class Scheme {
 
     def extendEnv(vars, vals, env) {
         assert vars.size() == vals.size()
-        def frame = [:]
-        for (int i = 0; i < vars.size(); i++) {
-            frame[vars[i]] = vals[i]
-        }
+        def frame = [vars, vals].transpose().collectEntries { [(it[0]): it[1]] }
         [frame] + env
     }
 }
