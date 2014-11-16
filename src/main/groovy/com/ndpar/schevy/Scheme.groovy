@@ -110,36 +110,16 @@ class Scheme {
      * Evaluate an expression in an environment.
      */
     def eval(exp, env = globalEnv) {
-        if (isSelfEval(exp)) {
-            exp
-
-        } else if (isVariable(exp)) {
-            lookupVariableValue(exp, env)
-
-        } else if (isQuoted(exp)) {
-            evalQuotation(exp)
-
-        } else if (isAssignment(exp)) {
-            evalAssignment(exp, env)
-
-        } else if (isDefinition(exp)) {
-            evalDefinition(exp, env)
-
-        } else if (isIf(exp)) {
-            evalIf(exp, env)
-
-        } else if (isLambda(exp)) {
-            makeProcedure(exp[1], exp[2..-1], env)
-
-        } else if (isBegin(exp)) {
-            evalSequence(exp.cdr(), env)
-
-        } else if (isApplication(exp)) {
-            apply(exp[0], exp.cdr(), env)
-
-        } else {
-            throw new IllegalArgumentException("Unknown expression type $exp")
-        }
+        if (isSelfEval(exp)) exp
+        else if (isVariable(exp)) lookupVariableValue(exp, env)
+        else if (isQuoted(exp)) evalQuotation(exp)
+        else if (isAssignment(exp)) evalAssignment(exp, env)
+        else if (isDefinition(exp)) evalDefinition(exp, env)
+        else if (isIf(exp)) evalIf(exp, env)
+        else if (isLambda(exp)) makeProcedure(exp[1], exp[2..-1], env)
+        else if (isBegin(exp)) evalSequence(exp.cdr(), env)
+        else if (isApplication(exp)) apply(exp[0], exp.cdr(), env)
+        else throw new IllegalArgumentException("Unknown expression type $exp")
     }
 
     def isSelfEval(exp) {
