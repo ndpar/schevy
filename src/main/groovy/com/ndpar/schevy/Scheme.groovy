@@ -173,7 +173,7 @@ class Scheme {
     }
 
     def evalDefinition(exp, env) {
-        defineVariable(exp[1], eval(exp[2], env), env)
+        defineVariable(exp[1], exp[2], env)
     }
 
     def isIf(exp) {
@@ -254,7 +254,7 @@ class Scheme {
     }
 
     def defineVariable(var, val, List<Map> env) {
-        if (var instanceof String) env[0][var] = val
+        if (var instanceof String) env[0][var] = eval(val, env)
         else {
             assert var instanceof List
             env[0][var[0]] = makeProcedure(var.cdr(), [val], env)

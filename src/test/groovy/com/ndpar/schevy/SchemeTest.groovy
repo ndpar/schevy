@@ -123,6 +123,12 @@ class SchemeTest {
     }
 
     @Test
+    void define_procedure() {
+        assert eval('(define (fact n) (if (= n 1) 1 (* (fact (- n 1)) n)))') == 'ok'
+        assert eval('(fact 5)') == 120
+    }
+
+    @Test
     void norvig_test() {
         assert eval('(define first car)') == 'ok'
         assert eval('(define rest cdr)') == 'ok'
