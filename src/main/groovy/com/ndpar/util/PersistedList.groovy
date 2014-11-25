@@ -15,4 +15,9 @@ class PersistedList {
     static PersistedList cons(Object a, Object d) {
         new PersistedList(car: a, cdr: d)
     }
+
+    PersistedList each(Closure closure) {
+        if (cdr) cons(closure.call(car), cdr.each(closure))
+        else new PersistedList(car: closure.call(car), cdr: null)
+    }
 }
