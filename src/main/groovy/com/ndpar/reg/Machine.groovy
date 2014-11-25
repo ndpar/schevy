@@ -6,6 +6,8 @@ import static com.ndpar.util.PersistedList.*
 
 class Machine {
 
+    private reader = new Reader()
+
     Register pc
     Register flag
     Stack stack
@@ -15,6 +17,13 @@ class Machine {
     Map<String, PersistedList> labels
     long instructionsExecuted
     boolean trace
+
+    Machine(List regNames, Map ops, String controllerText) {
+        makeNewMachine()
+        regNames.each { allocateRegister(it) }
+        installOperations(ops)
+        assemble(reader.read(controllerText) as List)
+    }
 
     Machine(List regNames, Map ops, List controllerText) {
         makeNewMachine()
