@@ -78,8 +78,9 @@ class Machine {
         def insts = pc.contents
         if (insts == null) printStackStatistics.call()
         else {
-            if (trace) println("INST: ${insts.car.text}")
-            insts.car.procedure.call()
+            Instruction inst = insts.car
+            if (trace) println("INST: ${inst.label} -> ${inst.text}")
+            inst.procedure.call()
             instructionsExecuted++
             execute()
         }
@@ -104,11 +105,19 @@ class Machine {
             if (inst instanceof String) {
                 if (labels[inst]) throw new IllegalArgumentException("Duplicate label: $inst")
                 labels[inst] = instructionSequence
+                setLabel(instructionSequence, inst)
             } else if (inst instanceof List) {
                 instructionSequence = cons(new Instruction(text: inst), instructionSequence)
             } else {
                 throw new IllegalArgumentException("Unknown instruction type: $inst")
             }
+        }
+    }
+
+    void setLabel(PersistedList insts, String label) {
+        while (insts != null && insts.car.label == null) {
+            insts.car.label = label
+            insts = insts.cdr
         }
     }
 

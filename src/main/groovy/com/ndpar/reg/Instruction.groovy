@@ -3,7 +3,7 @@ package com.ndpar.reg
 class Instruction {
 
     Object text
-    List label
+    String label
     Object breakpoint
     Closure procedure
 
