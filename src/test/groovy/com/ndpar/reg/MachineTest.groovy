@@ -5,7 +5,7 @@ import org.junit.Test
 class MachineTest {
 
     @Test
-    void testGCD() {
+    void gcd() {
         def regs = ['a', 'b', 't']
         def ops = [
                 'rem': { args -> args[0].mod(args[1]) },
@@ -30,7 +30,7 @@ class MachineTest {
     }
 
     @Test
-    void testGCD2() {
+    void gcd2() {
         def regs = ['a', 'b', 't']
         def ops = [
                 'rem': { args -> args[0].mod(args[1]) },
@@ -55,7 +55,7 @@ class MachineTest {
     }
 
     @Test
-    void testFactorial() {
+    void factorial_recursive() {
         def regs = ['continue', 'n', 'val']
         def ops = [
                 '-': { args -> args[0] - args[1] },
@@ -95,7 +95,35 @@ class MachineTest {
     }
 
     @Test
-    void testFibonacci() {
+    void factorial_iterative() {
+        def regs = ['n', 'count', 'prod']
+        def ops = [
+                '+': { args -> args[0] + args[1] },
+                '*': { args -> args[0] * args[1] },
+                '<': { args -> args[0] < args[1] }
+        ]
+        def script = """(
+                (assign prod (const 1))
+                (assign count (const 1))
+
+                iter
+                (test (op <) (reg n) (reg count))
+                (branch (label fact-done))
+                (assign prod (op *) (reg prod) (reg count))
+                (assign count (op +) (reg count) (const 1))
+                (goto (label iter))
+
+                fact-done
+        )"""
+        new Machine(regs, ops, script).with {
+            setRegisterContent 'n', 6
+            start()
+            assert getRegisterContent('prod') == 720
+        }
+    }
+
+    @Test
+    void fibonacci() {
         def regs = ['continue', 'n', 'val']
         def ops = [
                 '-': { args -> args[0] - args[1] },
