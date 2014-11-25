@@ -1,19 +1,10 @@
 package com.ndpar.reg
 
 import com.ndpar.util.PersistedList
+
 import static com.ndpar.util.PersistedList.*
 
 class Machine {
-
-    static {
-        meta()
-    }
-
-    static meta() {
-        List.metaClass.car << {
-            delegate[0]
-        }
-    }
 
     Register pc
     Register flag
@@ -22,29 +13,25 @@ class Machine {
     Map<String, Closure> theOps
     Map<String, Register> registerTable
     Map<String, PersistedList> labels
-//    boolean trace
-//    long instructionsExecuted
+    long instructionsExecuted
+    boolean trace
 
     Machine(List regNames, Map ops, List controllerText) {
         makeNewMachine()
         regNames.each { allocateRegister(it) }
         installOperations(ops)
         assemble(controllerText)
-//        theOps += ops
-//        instructionSequence = assemble(controllerText)
     }
 
     void makeNewMachine() {
         pc = new Register('pc')
         flag = new Register('flag')
         stack = new Stack()
-//        instructionSequence = []
-//        trace = false
-//        instructionsExecuted = 0
-//        labels = [:]
         theOps = [initializeStack: initializeStack, printStackStatistics: printStackStatistics]
         registerTable = [pc: pc, flag: flag]
         labels = [:]
+        instructionsExecuted = 0
+        trace = false
     }
 
     // --------------------------------------------------------------
@@ -68,10 +55,6 @@ class Machine {
     //
     // --------------------------------------------------------------
 
-//    def installInstructionSequence(seq) {
-//        instructionSequence = seq
-//    }
-
     def installOperations(ops) {
         theOps += ops
     }
@@ -93,9 +76,11 @@ class Machine {
 
     def execute() {
         def insts = pc.contents
-        if (insts == null) 'done'
+        if (insts == null) printStackStatistics.call()
         else {
+            if (trace) println("INST: ${insts.car.text}")
             insts.car.procedure.call()
+            instructionsExecuted++
             execute()
         }
     }
@@ -105,7 +90,8 @@ class Machine {
     }
 
     def printStackStatistics = {
-        println(stack.stackStats())
+        Map stats = stack.stackStats() + ['instruction-executed': instructionsExecuted]
+        println "STATS: $stats"
     }
 
     void assemble(List controllerText) {
