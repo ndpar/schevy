@@ -1,5 +1,7 @@
 package com.ndpar.reg
 
+import static com.ndpar.util.PersistedList.*
+
 /**
  * Explicit Control Evaluator for Scheme.
  * SICP, exercise 5.51, p.610
@@ -24,7 +26,7 @@ class Scheme {
                 'cond?'                    : isCond,
                 'cond-actions'             : condActions,
                 'cond-clauses'             : condClauses,
-                'cond-else-clause?'        : condElseClause,
+                'cond-else-clause?'        : isCondElseClause,
                 'cond-predicate'           : condPredicate,
                 'define-variable!'         : defineVariable,
                 'definition?'              : isDefinition,
@@ -378,43 +380,47 @@ class Scheme {
     }
 
     def assignmentValue = {
-        args -> args
+        args -> args[0][2]
     }
 
     def assignmentVariable = {
-        args -> args
+        args -> args[0][1]
     }
 
     def beginActions = {
-        args -> args
+        args -> args[0][1..-1]
     }
 
     def condActions = {
-        args -> args
+        args -> args[0][1..-1]
     }
 
     def condClauses = {
-        args -> args
+        args -> args[0][1..-1]
     }
 
-    def condElseClause = {
-        args -> args
+    def isCondElseClause = {
+        args -> args[0][0] == 'else'
     }
 
     def condPredicate = {
-        args -> args
+        args -> args[0][0]
     }
 
-    def defineVariable = {
-        args -> args
+    def defineVariable = { args ->
+        def var = args[0]
+        def val = args[1]
+        def env = args[2]
+        def frame = env[0]
+        frame[var] = val
     }
 
     def definitionValue = {
-        args -> args
+        args -> args[0][2]
     }
 
     def definitionVariable = {
-        args -> args
+        args -> args[0][1]
     }
 
     def emptyArglist = {
@@ -426,11 +432,11 @@ class Scheme {
     }
 
     def firstCond = {
-        args -> args
+        args -> args[0][0]
     }
 
     def firstExp = {
-        args -> args
+        args -> args[0][0]
     }
 
     def firstOperand = {
@@ -442,15 +448,15 @@ class Scheme {
     }
 
     def ifAlternative = {
-        args -> args
+        args -> args[0][3]
     }
 
     def ifConsequent = {
-        args -> args
+        args -> args[0][2]
     }
 
     def ifPredicate = {
-        args -> args
+        args -> args[0][1]
     }
 
     def isApplication = { exp ->
@@ -490,7 +496,7 @@ class Scheme {
     }
 
     def isLastExp = {
-        args -> args
+        args -> args[0].size() == 1
     }
 
     def isLastOperand = {
@@ -502,7 +508,7 @@ class Scheme {
     }
 
     def isNoConds = {
-        args -> args
+        args -> args[0].empty
     }
 
     def isNoOperands = {
@@ -523,7 +529,7 @@ class Scheme {
     }
 
     def isTrue = {
-        args -> args
+        args -> args[0] == true
     }
 
     def isVariable = { exp ->
@@ -586,28 +592,42 @@ class Scheme {
     }
 
     def restConds = {
-        args -> args
+        args -> args[0][1..-1]
     }
 
     def restExps = {
-        args -> args
+        args -> args[0][1..-1]
     }
 
     def restOperands = {
         args -> args[0][1..-1]
     }
 
-    def setVariableValue = {
-        args -> args
+    def setVariableValue = { args ->
+        def var = args[0]
+        def val = args[1]
+        def env = args[2]
+        for (Map frame : env) {
+            if (frame[var]) {
+                frame[var] = val
+                return
+            }
+        }
+        throw new IllegalArgumentException("Unbound variable: $var")
     }
 
     def textOfQuotation = { args ->
-        args[1]
+        args[0][1]
     }
 
     def userPrint = { args ->
         def object = args[0]
-        println object
+        println(stringify(object))
+    }
+
+    def stringify(object) {
+        // FIXME
+        object
     }
 
     // --------------------------------------------------------------
@@ -622,22 +642,38 @@ class Scheme {
                 'false'       : false,
                 '*unassigned*': '*unassigned*',
                 'car'         : proc({
-                    args -> args[0][0]
+                    args -> args[0].car
                 }),
                 'cdr'         : proc({
-                    args -> args[1..-1]
+                    args -> args[0].cdr
                 }),
-                'cons'        : null,
-                'null?'       : null,
-                'eq?'         : null,
-                '='           : null,
-                '<'           : null,
+                'cons'        : proc({
+                    args -> cons(args[0], args[1])
+                }),
+                'null?'       : proc({
+                    args -> args[0] == null
+                }),
+                'eq?'         : proc({
+                    args -> args[0] == args[1]
+                }),
+                '='           : proc({
+                    args -> args[0] == args[1]
+                }),
+                '<'           : proc({
+                    args -> args[0] < args[1]
+                }),
                 '+'           : proc({
                     args -> args[0] + args[1]
                 }),
-                '-'           : null,
-                '*'           : null,
-                '/'           : null
+                '-'           : proc({
+                    args -> args[0] - args[1]
+                }),
+                '*'           : proc({
+                    args -> args[0] * args[1]
+                }),
+                '/'           : proc({
+                    args -> args[0] / args[1]
+                })
         ]]
     }
 
