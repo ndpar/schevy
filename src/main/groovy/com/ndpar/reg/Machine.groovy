@@ -36,7 +36,7 @@ class Machine {
         pc = new Register('pc')
         flag = new Register('flag')
         stack = new Stack()
-        theOps = [initializeStack: initializeStack, printStackStatistics: printStackStatistics]
+        theOps = ['initialize-stack': initializeStack, 'print-stack-statistics': printStackStatistics]
         registerTable = [pc: pc, flag: flag]
         labels = [:]
         instructionsExecuted = 0
