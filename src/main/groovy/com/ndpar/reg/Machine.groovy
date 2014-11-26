@@ -255,7 +255,8 @@ class Machine {
 
     Closure makeOperationExp(List exp) {
         Closure op = theOps[exp[0][1]]
-        List aprocs = exp[1..-1].collect { makePrimitiveExp(it) }
+        if (op == null) throw new IllegalArgumentException("Undefined operation: $exp")
+        List aprocs = exp.size() > 1 ? exp[1..-1].collect { makePrimitiveExp(it) } : []
         return { -> op.call(aprocs*.call()) }
     }
 }

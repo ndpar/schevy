@@ -348,7 +348,10 @@ class Scheme {
             (perform (op user-print) (reg val))
             (goto (label read-eval-print-loop))
         )"""
-        new Machine(regs, ops, script).start()
+        new Machine(regs, ops, script).with {
+            trace = true
+            start()
+        }
     }
 
     static void main(String[] args) {
@@ -360,76 +363,78 @@ class Scheme {
     // --------------------------------------------------------------
 
     def adjoinArg = {
-        args ->
+        args -> args[1] + [args[0]]
     }
 
     def announceOutput = { args ->
         def output = args[0]
-        println "\n$output"
+        print "\n$output "
     }
 
-    def applyPrimitiveProcedure = {
-        args ->
+    def applyPrimitiveProcedure = { args ->
+        def proc = args[0][1]
+        def argl = args[1]
+        proc.call(argl)
     }
 
     def assignmentValue = {
-        args ->
+        args -> args
     }
 
     def assignmentVariable = {
-        args ->
+        args -> args
     }
 
     def beginActions = {
-        args ->
+        args -> args
     }
 
     def condActions = {
-        args ->
+        args -> args
     }
 
     def condClauses = {
-        args ->
+        args -> args
     }
 
     def condElseClause = {
-        args ->
+        args -> args
     }
 
     def condPredicate = {
-        args ->
+        args -> args
     }
 
     def defineVariable = {
-        args ->
+        args -> args
     }
 
     def definitionValue = {
-        args ->
+        args -> args
     }
 
     def definitionVariable = {
-        args ->
+        args -> args
     }
 
     def emptyArglist = {
-        args ->
+        _ -> []
     }
 
     def extendEnvironment = {
-        args ->
+        args -> args
     }
 
     def firstCond = {
-        args ->
+        args -> args
     }
 
     def firstExp = {
-        args ->
+        args -> args
     }
 
     def firstOperand = {
-        args ->
+        args -> args[0][0]
     }
 
     def getGlobalEnvironment = { _ ->
@@ -437,39 +442,39 @@ class Scheme {
     }
 
     def ifAlternative = {
-        args ->
+        args -> args
     }
 
     def ifConsequent = {
-        args ->
+        args -> args
     }
 
     def ifPredicate = {
-        args ->
+        args -> args
     }
 
     def isApplication = { exp ->
-        exp instanceof List
+        exp[0] instanceof List
     }
 
     def isAssignment = { exp ->
-        exp[0] == 'set!'
+        exp[0][0] == 'set!'
     }
 
     def isBegin = { exp ->
-        exp[0] == 'begin'
+        exp[0][0] == 'begin'
     }
 
     def isCompoundProcedure = {
-        args ->
+        args -> args
     }
 
     def isCond = { exp ->
-        exp[0] == 'cond'
+        exp[0][0] == 'cond'
     }
 
     def isDefinition = { exp ->
-        exp[0] == 'define'
+        exp[0][0] == 'define'
     }
 
     def isEq = { args ->
@@ -477,39 +482,39 @@ class Scheme {
     }
 
     def isIf = { exp ->
-        exp[0] == 'if'
+        exp[0][0] == 'if'
     }
 
     def isLambda = { exp ->
-        exp[0] == 'lambda'
+        exp[0][0] == 'lambda'
     }
 
     def isLastExp = {
-        args ->
+        args -> args
     }
 
     def isLastOperand = {
-        args ->
+        args -> args[0].size() == 1
     }
 
     def isLet = { exp ->
-        exp[0] == 'let'
+        exp[0][0] == 'let'
     }
 
     def isNoConds = {
-        args ->
+        args -> args
     }
 
     def isNoOperands = {
-        args ->
+        args -> args[0].empty
     }
 
     def isPrimitiveProcedure = {
-        args ->
+        args -> args[0][0] == 'primitive'
     }
 
     def isQuoted = { exp ->
-        exp[0] == 'quote'
+        exp[0][0] == 'quote'
     }
 
     def isSelfEvaluating = { args ->
@@ -518,11 +523,11 @@ class Scheme {
     }
 
     def isTrue = {
-        args ->
+        args -> args
     }
 
     def isVariable = { exp ->
-        exp instanceof String
+        exp[0] instanceof String
     }
 
     def lambdaBody = { args ->
@@ -534,35 +539,41 @@ class Scheme {
     }
 
     def letCombination = {
-        args ->
+        args -> args
     }
 
-    def lookupVariableValue = {
-        throw new UnsupportedOperationException('FIXME')
+    def lookupVariableValue = { args ->
+        def var = args[0]
+        def env = args[1]
+        for (Map frame : env) {
+            if (frame[var]) return frame[var]
+        }
+        throw new IllegalArgumentException("Unbound variable: $var")
     }
 
     def makeProcedure = {
         throw new UnsupportedOperationException('FIXME')
     }
 
-    def operands = {
-        args ->
+    def operands = { args ->
+        def exp = args[0]
+        exp.size() > 1 ? exp[1..-1] : []
     }
 
     def operator = {
-        args ->
+        args -> args[0][0]
     }
 
     def procedureBody = {
-        args ->
+        args -> args
     }
 
     def procedureEnvironment = {
-        args ->
+        args -> args
     }
 
     def procedureParameters = {
-        args ->
+        args -> args
     }
 
     def promptForInput = { args ->
@@ -575,19 +586,19 @@ class Scheme {
     }
 
     def restConds = {
-        args ->
+        args -> args
     }
 
     def restExps = {
-        args ->
+        args -> args
     }
 
     def restOperands = {
-        args ->
+        args -> args[0][1..-1]
     }
 
     def setVariableValue = {
-        args ->
+        args -> args
     }
 
     def textOfQuotation = { args ->
@@ -596,7 +607,7 @@ class Scheme {
 
     def userPrint = { args ->
         def object = args[0]
-        print object
+        println object
     }
 
     // --------------------------------------------------------------
@@ -606,7 +617,7 @@ class Scheme {
     def globalEnvironment = setupEnvironment()
 
     def setupEnvironment() {
-        [
+        [[
                 'true'        : true,
                 'false'       : false,
                 '*unassigned*': '*unassigned*',
@@ -621,11 +632,13 @@ class Scheme {
                 'eq?'         : null,
                 '='           : null,
                 '<'           : null,
-                '+'           : null,
+                '+'           : proc({
+                    args -> args[0] + args[1]
+                }),
                 '-'           : null,
                 '*'           : null,
                 '/'           : null
-        ]
+        ]]
     }
 
     def proc(closure) {
