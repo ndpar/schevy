@@ -351,7 +351,7 @@ class Scheme {
             (goto (label read-eval-print-loop))
         )"""
         new Machine(regs, ops, script).with {
-            trace = true
+//            trace = true
             start()
         }
     }
@@ -652,44 +652,53 @@ class Scheme {
     def globalEnvironment = setupEnvironment()
 
     def setupEnvironment() {
-        [[
+        [primitiveVars() + primitiveOperations()]
+    }
+
+    def primitiveVars() {
+        [
                 'true'        : true,
                 'false'       : false,
-                '*unassigned*': '*unassigned*',
-                'car'         : proc({
+                '*unassigned*': '*unassigned*'
+        ]
+    }
+
+    def primitiveOperations() {
+        [
+                'car'  : proc({
                     args -> args[0].car
                 }),
-                'cdr'         : proc({
+                'cdr'  : proc({
                     args -> args[0].cdr
                 }),
-                'cons'        : proc({
+                'cons' : proc({
                     args -> cons(args[0], args[1])
                 }),
-                'null?'       : proc({
+                'null?': proc({
                     args -> args[0] == null
                 }),
-                'eq?'         : proc({
+                'eq?'  : proc({
                     args -> args[0] == args[1]
                 }),
-                '='           : proc({
+                '='    : proc({
                     args -> args[0] == args[1]
                 }),
-                '<'           : proc({
+                '<'    : proc({
                     args -> args[0] < args[1]
                 }),
-                '+'           : proc({
+                '+'    : proc({
                     args -> args[0] + args[1]
                 }),
-                '-'           : proc({
+                '-'    : proc({
                     args -> args[0] - args[1]
                 }),
-                '*'           : proc({
+                '*'    : proc({
                     args -> args[0] * args[1]
                 }),
-                '/'           : proc({
+                '/'    : proc({
                     args -> args[0] / args[1]
                 })
-        ]]
+        ]
     }
 
     def proc(closure) {
