@@ -571,7 +571,7 @@ class Scheme {
     }
 
     def read = { _ ->
-        System.in.withReader { r -> reader.read(r.readLine()) }
+        reader.read(System.in.newReader().readLine())
     }
 
     def restConds = {
