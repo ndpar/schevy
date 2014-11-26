@@ -427,8 +427,12 @@ class Scheme {
         _ -> []
     }
 
-    def extendEnvironment = {
-        args -> args
+    def extendEnvironment = { args ->
+        def vars = args[0]
+        def vals = args[1]
+        assert vars.size() == vals.size()
+        def env = args[2]
+        [[vars, vals].transpose().collectEntries { [(it[0]): it[1]] }] + env
     }
 
     def firstCond = {
@@ -472,7 +476,7 @@ class Scheme {
     }
 
     def isCompoundProcedure = {
-        args -> args
+        args -> args[0][0] == 'procedure'
     }
 
     def isCond = { exp ->
@@ -537,15 +541,23 @@ class Scheme {
     }
 
     def lambdaBody = { args ->
-        args[2..-1]
+        args[0][2..-1]
     }
 
     def lambdaParameters = { args ->
-        args[1]
+        args[0][1]
     }
 
-    def letCombination = {
-        args -> args
+    def letCombination = { args ->
+        def bindings = args[0][1]
+        def vars = bindings.collect { it[0] }
+        def vals = bindings.collect { it[1] }
+        def body = args[0][2..-1]
+        [makeLambda(vars, body)] + vals
+    }
+
+    def makeLambda(params, body) {
+        ['lambda', params] + body
     }
 
     def lookupVariableValue = { args ->
@@ -557,8 +569,11 @@ class Scheme {
         throw new IllegalArgumentException("Unbound variable: $var")
     }
 
-    def makeProcedure = {
-        throw new UnsupportedOperationException('FIXME')
+    def makeProcedure = { args ->
+        def params = args[0]
+        def body = args[1]
+        def env = args[2]
+        ['procedure', params, body, env]
     }
 
     def operands = { args ->
@@ -571,15 +586,15 @@ class Scheme {
     }
 
     def procedureBody = {
-        args -> args
+        args -> args[0][2]
     }
 
     def procedureEnvironment = {
-        args -> args
+        args -> args[0][3]
     }
 
     def procedureParameters = {
-        args -> args
+        args -> args[0][1]
     }
 
     def promptForInput = { args ->
