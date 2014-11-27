@@ -98,6 +98,7 @@ class Machine {
 
     def initializeStack = {
         stack.initialize()
+        instructionsExecuted = 0
     }
 
     def printStackStatistics = {
