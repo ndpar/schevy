@@ -83,9 +83,9 @@ class Scheme {
             (goto (label eval-dispatch))
 
             print-result
-            (perform (op print-stack-statistics))
             (perform (op announce-output) (const EC-Eval:))
             (perform (op user-print) (reg val))
+            (perform (op print-stack-statistics))
             (goto (label read-eval-print-loop))
 
             eval-dispatch
@@ -370,7 +370,7 @@ class Scheme {
 
     def announceOutput = { args ->
         def output = args[0]
-        print "\n$output "
+        print "$output "
     }
 
     def applyPrimitiveProcedure = { args ->
@@ -599,7 +599,7 @@ class Scheme {
 
     def promptForInput = { args ->
         def prompt = args[0]
-        println "\n\n$prompt"
+        print "\n$prompt "
     }
 
     def read = { _ ->
