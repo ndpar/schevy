@@ -665,6 +665,9 @@ class Scheme {
 
     def primitiveOperations() {
         [
+                'assert': proc({
+                    args -> assert args[0]; 'ok'
+                }),
                 'car'  : proc({
                     args -> args[0].car
                 }),
