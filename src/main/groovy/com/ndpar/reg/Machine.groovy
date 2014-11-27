@@ -43,7 +43,7 @@ class Machine {
         pc = new Register('pc')
         flag = new Register('flag')
         stack = new Stack()
-        operations = ['initialize-stack': initializeStack, 'print-stack-statistics': printStackStatistics]
+        operations = ['initialize-machine': initializeMachine, 'print-machine-statistics': printStatistics]
         registers = [pc: pc, flag: flag]
         labels = [:]
         instructionsExecuted = 0
@@ -82,7 +82,7 @@ class Machine {
 
     def execute() {
         def insts = pc.contents
-        if (insts == null) printStackStatistics.call()
+        if (insts == null) printStatistics.call()
         else {
             Instruction inst = insts.car
             if (trace) println("INST: ${inst.label} -> ${inst.text}")
@@ -96,12 +96,12 @@ class Machine {
         operations += ops
     }
 
-    def initializeStack = {
+    def initializeMachine = {
         stack.initialize()
         instructionsExecuted = 0
     }
 
-    def printStackStatistics = {
+    def printStatistics = {
         Map stats = stack.stackStats() + ['instruction-executed': instructionsExecuted]
         println "STATS: $stats"
     }

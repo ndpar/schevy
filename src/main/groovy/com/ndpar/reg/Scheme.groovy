@@ -75,7 +75,7 @@ class Scheme {
         ]
         def script = """(
             read-eval-print-loop
-            (perform (op initialize-stack))
+            (perform (op initialize-machine))
             (perform (op prompt-for-input) (const EC-Eval>))
             (assign exp (op read))
             (assign env (op get-global-environment))
@@ -85,7 +85,7 @@ class Scheme {
             print-result
             (perform (op announce-output) (const EC-Eval:))
             (perform (op user-print) (reg val))
-            (perform (op print-stack-statistics))
+            (perform (op print-machine-statistics))
             (goto (label read-eval-print-loop))
 
             eval-dispatch
