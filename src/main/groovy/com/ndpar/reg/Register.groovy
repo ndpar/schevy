@@ -2,9 +2,10 @@ package com.ndpar.reg
 
 class Register {
 
+    final String name
     def contents
 
-    Register(name) {
-
+    Register(String name) {
+        this.name = name
     }
 }
