@@ -18,17 +18,19 @@ class Machine {
     long instructionsExecuted
     boolean trace
 
-    Machine(List regNames, Map ops, String controllerText) {
+    Machine(List regNames, Map ops) {
         makeNewMachine()
         regNames.each { allocateRegister(it) }
         installOperations(ops)
+    }
+
+    Machine(List regNames, Map ops, String controllerText) {
+        this(regNames, ops)
         assemble(reader.read(controllerText) as List)
     }
 
     Machine(List regNames, Map ops, List controllerText) {
-        makeNewMachine()
-        regNames.each { allocateRegister(it) }
-        installOperations(ops)
+        this(regNames, ops)
         assemble(controllerText)
     }
 
