@@ -81,15 +81,13 @@ class Machine {
     }
 
     def execute() {
-        def insts = pc.contents
-        if (insts == null) printStatistics.call()
-        else {
-            Instruction inst = insts.car
+        while (pc.contents != null) {
+            Instruction inst = pc.contents.car
             if (trace) println("INST: ${inst.label} -> ${inst.text}")
             inst.procedure.call()
             instructionsExecuted++
-            execute()
         }
+        printStatistics.call()
     }
 
     def installOperations(ops) {
