@@ -11,12 +11,17 @@ class Machine {
     Register pc
     Register flag
     Stack stack
-    PersistedList instructionSequence
-    Map<String, Closure> theOps
-    Map<String, Register> registerTable
+    PersistedList instructions
+    Map<String, Closure> operations
+    Map<String, Register> registers
     Map<String, PersistedList> labels
+
     long instructionsExecuted
     boolean trace
+
+    // --------------------------------------------------------------
+    // Constructors
+    // --------------------------------------------------------------
 
     Machine(List regNames, Map ops) {
         makeNewMachine()
@@ -38,8 +43,8 @@ class Machine {
         pc = new Register('pc')
         flag = new Register('flag')
         stack = new Stack()
-        theOps = ['initialize-stack': initializeStack, 'print-stack-statistics': printStackStatistics]
-        registerTable = [pc: pc, flag: flag]
+        operations = ['initialize-stack': initializeStack, 'print-stack-statistics': printStackStatistics]
+        registers = [pc: pc, flag: flag]
         labels = [:]
         instructionsExecuted = 0
         trace = false
@@ -50,39 +55,29 @@ class Machine {
     // --------------------------------------------------------------
 
     def setRegisterContent(String regName, value) {
-        registerTable[regName].contents = value
+        registers[regName].contents = value
     }
 
     def getRegisterContent(String regName) {
-        registerTable[regName].contents
+        registers[regName].contents
     }
 
     def start() {
-        pc.contents = instructionSequence
+        pc.contents = instructions
         execute()
     }
 
     // --------------------------------------------------------------
-    //
+    // Registers and Operations
     // --------------------------------------------------------------
 
-    def installOperations(ops) {
-        theOps += ops
-    }
-
     def allocateRegister(regName) {
-        if (registerTable[regName]) {
+        if (registers[regName]) {
             throw new IllegalArgumentException("Multiply define register $regName")
         } else {
-            registerTable[regName] = new Register(regName)
+            registers[regName] = new Register(regName)
         }
         'register-allocated'
-    }
-
-    def getRegister(regName) {
-        def val = registerTable.get(regName)
-        if (val) val
-        else throw new IllegalArgumentException("Unknown register $regName")
     }
 
     def execute() {
@@ -97,6 +92,10 @@ class Machine {
         }
     }
 
+    def installOperations(ops) {
+        operations += ops
+    }
+
     def initializeStack = {
         stack.initialize()
     }
@@ -105,6 +104,10 @@ class Machine {
         Map stats = stack.stackStats() + ['instruction-executed': instructionsExecuted]
         println "STATS: $stats"
     }
+
+    // --------------------------------------------------------------
+    // Assembler
+    // --------------------------------------------------------------
 
     void assemble(List controllerText) {
         extractLabels(controllerText)
@@ -115,10 +118,10 @@ class Machine {
         controllerText.reverse().each { inst ->
             if (inst instanceof String) {
                 if (labels[inst]) throw new IllegalArgumentException("Duplicate label: $inst")
-                labels[inst] = instructionSequence
-                setLabel(instructionSequence, inst)
+                labels[inst] = instructions
+                setLabel(instructions, inst)
             } else if (inst instanceof List) {
-                instructionSequence = cons(new Instruction(text: inst), instructionSequence)
+                instructions = cons(new Instruction(text: inst), instructions)
             } else {
                 throw new IllegalArgumentException("Unknown instruction type: $inst")
             }
@@ -133,7 +136,7 @@ class Machine {
     }
 
     void installProcedures() {
-        instructionSequence.each { inst ->
+        instructions.each { inst ->
             inst.procedure = makeExecutionProcedure(inst.text)
         }
     }
@@ -142,8 +145,12 @@ class Machine {
         "make_${inst[0]}"(inst)
     }
 
+    // --------------------------------------------------------------
+    // Dynamically dispatched assembler clauses
+    // --------------------------------------------------------------
+
     Closure make_assign(List inst) {
-        Register target = registerTable[inst[1]]
+        Register target = registers[inst[1]]
         List valueExp = inst[2..-1]
         Closure valueProc = isOperationExp(valueExp) ? makeOperationExp(valueExp) : makePrimitiveExp(valueExp[0])
         return { ->
@@ -188,7 +195,7 @@ class Machine {
             PersistedList insts = labels[dest[1]]
             return { -> pc.contents = insts }
         } else if (isRegisterExp(dest)) {
-            Register reg = registerTable[dest[1]]
+            Register reg = registers[dest[1]]
             return { -> pc.contents = reg.contents }
         } else {
             throw new IllegalArgumentException("Bad GOTO instruction: $inst")
@@ -196,7 +203,7 @@ class Machine {
     }
 
     Closure make_save(List inst) {
-        Register reg = registerTable[inst[1]]
+        Register reg = registers[inst[1]]
         return { ->
             stack.push(reg.contents)
             advancePc()
@@ -204,7 +211,7 @@ class Machine {
     }
 
     Closure make_restore(List inst) {
-        Register reg = registerTable[inst[1]]
+        Register reg = registers[inst[1]]
         return { ->
             reg.contents = stack.pop()
             advancePc()
@@ -232,7 +239,7 @@ class Machine {
             PersistedList insts = labels[exp[1]]
             return { -> insts }
         } else if (isRegisterExp(exp)) {
-            Register r = registerTable[exp[1]]
+            Register r = registers[exp[1]]
             return { -> r.contents }
         } else {
             throw new IllegalArgumentException("Unknown expression type: $exp")
@@ -256,7 +263,7 @@ class Machine {
     }
 
     Closure makeOperationExp(List exp) {
-        Closure op = theOps[exp[0][1]]
+        Closure op = operations[exp[0][1]]
         if (op == null) throw new IllegalArgumentException("Undefined operation: $exp")
         List aprocs = exp.size() > 1 ? exp[1..-1].collect { makePrimitiveExp(it) } : []
         return { -> op.call(aprocs*.call()) }
