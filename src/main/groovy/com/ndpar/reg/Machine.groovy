@@ -1,6 +1,7 @@
 package com.ndpar.reg
 
 import com.ndpar.util.PersistedList
+import com.ndpar.util.Reader
 
 import static com.ndpar.util.PersistedList.*
 

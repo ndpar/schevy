@@ -1,7 +1,7 @@
 package com.ndpar.eceval
 
 import com.ndpar.reg.Machine
-import com.ndpar.reg.Reader
+import com.ndpar.util.Reader
 import com.ndpar.util.SchemeUtils as SU
 
 /**
