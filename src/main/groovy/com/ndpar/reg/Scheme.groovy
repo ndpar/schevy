@@ -119,8 +119,6 @@ class Scheme {
 
             ev-variable
             (assign val (op lookup-variable-value) (reg exp) (reg env))
-            (test (op eq?) (reg val) (const _*unbound-variable*_))
-            (branch (label unbound-variable))
             (goto (reg continue))
 
             ev-quoted
@@ -197,8 +195,6 @@ class Scheme {
 
             primitive-apply
             (assign val (op apply-primitive-procedure) (reg proc) (reg argl))
-            (test (op eq?) (reg val) (const _*illegal-argument*_))
-            (branch (label illegal-argument))
             (restore continue)
             (goto (reg continue))
 
@@ -326,16 +322,6 @@ class Scheme {
              (op define-variable!) (reg unev) (reg val) (reg env))
             (assign val (const ok))
             (goto (reg continue))
-
-            illegal-argument
-            (perform (op user-print) (reg argl))
-            (assign val (const illegal-argument))
-            (goto (label signal-error))
-
-            unbound-variable
-            (perform (op user-print) (reg exp))
-            (assign val (const unbound-variable))
-            (goto (label signal-error))
 
             unknown-expression-type
             (assign val (const unknown-expression-type-error))
