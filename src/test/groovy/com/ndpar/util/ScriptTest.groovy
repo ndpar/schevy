@@ -1,4 +1,4 @@
-package com.ndpar.reg
+package com.ndpar.util
 
 import org.junit.Test
 
