@@ -447,8 +447,8 @@ class Scheme {
         args -> args[0][0]
     }
 
-    def getGlobalEnvironment = { _ ->
-        globalEnvironment
+    def getGlobalEnvironment = {
+        _ -> globalEnvironment
     }
 
     def ifAlternative = {
@@ -463,40 +463,40 @@ class Scheme {
         args -> args[0][1]
     }
 
-    def isApplication = { exp ->
-        exp[0] instanceof List
+    def isApplication = {
+        args -> args[0] instanceof List
     }
 
-    def isAssignment = { exp ->
-        exp[0][0] == 'set!'
+    def isAssignment = {
+        args -> args[0][0] == 'set!'
     }
 
-    def isBegin = { exp ->
-        exp[0][0] == 'begin'
+    def isBegin = {
+        args -> args[0][0] == 'begin'
     }
 
     def isCompoundProcedure = {
         args -> args[0][0] == 'procedure'
     }
 
-    def isCond = { exp ->
-        exp[0][0] == 'cond'
+    def isCond = {
+        args -> args[0][0] == 'cond'
     }
 
-    def isDefinition = { exp ->
-        exp[0][0] == 'define'
+    def isDefinition = {
+        args -> args[0][0] == 'define'
     }
 
-    def isEq = { args ->
-        args[0] == args[1]
+    def isEq = {
+        args -> args[0] == args[1]
     }
 
-    def isIf = { exp ->
-        exp[0][0] == 'if'
+    def isIf = {
+        args -> args[0][0] == 'if'
     }
 
-    def isLambda = { exp ->
-        exp[0][0] == 'lambda'
+    def isLambda = {
+        args -> args[0][0] == 'lambda'
     }
 
     def isLastExp = {
@@ -507,8 +507,8 @@ class Scheme {
         args -> args[0].size() == 1
     }
 
-    def isLet = { exp ->
-        exp[0][0] == 'let'
+    def isLet = {
+        args -> args[0][0] == 'let'
     }
 
     def isNoConds = {
@@ -523,8 +523,8 @@ class Scheme {
         args -> args[0][0] == 'primitive'
     }
 
-    def isQuoted = { exp ->
-        exp[0][0] == 'quote'
+    def isQuoted = {
+        args -> args[0][0] == 'quote'
     }
 
     def isSelfEvaluating = { args ->
@@ -536,16 +536,16 @@ class Scheme {
         args -> args[0] == true
     }
 
-    def isVariable = { exp ->
-        exp[0] instanceof String
+    def isVariable = {
+        args -> args[0] instanceof String
     }
 
-    def lambdaBody = { args ->
-        args[0][2..-1]
+    def lambdaBody = {
+        args -> args[0][2..-1]
     }
 
-    def lambdaParameters = { args ->
-        args[0][1]
+    def lambdaParameters = {
+        args -> args[0][1]
     }
 
     def letCombination = { args ->
@@ -631,8 +631,8 @@ class Scheme {
         throw new IllegalArgumentException("Unbound variable: $var")
     }
 
-    def textOfQuotation = { args ->
-        args[0][1]
+    def textOfQuotation = {
+        args -> args[0][1]
     }
 
     def userPrint = { args ->
@@ -668,37 +668,37 @@ class Scheme {
                 'assert': proc({
                     args -> assert args[0]; 'ok'
                 }),
-                'car'  : proc({
+                'car'   : proc({
                     args -> args[0].car
                 }),
-                'cdr'  : proc({
+                'cdr'   : proc({
                     args -> args[0].cdr
                 }),
-                'cons' : proc({
+                'cons'  : proc({
                     args -> cons(args[0], args[1])
                 }),
-                'null?': proc({
+                'null?' : proc({
                     args -> args[0] == null
                 }),
-                'eq?'  : proc({
+                'eq?'   : proc({
                     args -> args[0] == args[1]
                 }),
-                '='    : proc({
+                '='     : proc({
                     args -> args[0] == args[1]
                 }),
-                '<'    : proc({
+                '<'     : proc({
                     args -> args[0] < args[1]
                 }),
-                '+'    : proc({
+                '+'     : proc({
                     args -> args[0] + args[1]
                 }),
-                '-'    : proc({
+                '-'     : proc({
                     args -> args[0] - args[1]
                 }),
-                '*'    : proc({
+                '*'     : proc({
                     args -> args[0] * args[1]
                 }),
-                '/'    : proc({
+                '/'     : proc({
                     args -> args[0] / args[1]
                 })
         ]
