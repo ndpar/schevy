@@ -1,6 +1,6 @@
 package com.ndpar.reg
 
-import static com.ndpar.util.PersistedList.*
+import com.ndpar.util.SchemeUtils as SU
 
 /**
  * Explicit Control Evaluator for Scheme.
@@ -410,15 +410,11 @@ class Scheme {
     }
 
     def emptyArglist = {
-        _ -> []
+        []
     }
 
     def extendEnvironment = { args ->
-        def vars = args[0]
-        def vals = args[1]
-        assert vars.size() == vals.size()
-        def env = args[2]
-        [[vars, vals].transpose().collectEntries { [(it[0]): it[1]] }] + env
+        SU.extendEnv(args[0], args[1], args[2])
     }
 
     def firstCond = {
@@ -434,7 +430,7 @@ class Scheme {
     }
 
     def getGlobalEnvironment = {
-        _ -> globalEnvironment
+        globalEnvironment
     }
 
     def ifAlternative = {
@@ -588,7 +584,7 @@ class Scheme {
         print "\n$prompt "
     }
 
-    def read = { _ ->
+    def read = {
         reader.read(System.in.newReader().readLine())
     }
 

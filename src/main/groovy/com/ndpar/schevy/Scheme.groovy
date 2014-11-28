@@ -1,7 +1,9 @@
 package com.ndpar.schevy
 
+import com.ndpar.util.SchemeUtils as SU
+
 /**
- *
+ * Port of Peter Norvig's lis.py.
  */
 class Scheme {
 
@@ -194,7 +196,7 @@ class Scheme {
         if (isPrimitiveProc(p)) {
             applyPrimitiveProc(p, params)
         } else if (isCompountProc(p)) {
-            evalSequence(p[2], extendEnv(p[1], params, env))
+            evalSequence(p[2], SU.extendEnv(p[1], params, env))
         } else throw new IllegalArgumentException("Unknown procedure type $proc")
     }
 
@@ -260,11 +262,5 @@ class Scheme {
         } else {
             lookupVariableValue(var, env.cdr())
         }
-    }
-
-    def extendEnv(vars, vals, env) {
-        assert vars.size() == vals.size()
-        def frame = [vars, vals].transpose().collectEntries { [(it[0]): it[1]] }
-        [frame] + env
     }
 }
