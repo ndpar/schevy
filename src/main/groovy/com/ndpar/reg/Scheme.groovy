@@ -641,8 +641,11 @@ class Scheme {
     }
 
     def stringify(object) {
-        // FIXME
-        object
+        if (object instanceof List) {
+            if (object.empty) '()'
+            else if (object[0] == 'procedure') '#<procedure>'
+            else object.toString().replace('[', '(').replace(']', ')').replace(',', '')
+        } else object
     }
 
     // --------------------------------------------------------------
