@@ -564,7 +564,7 @@ class Scheme {
         def var = args[0]
         def env = args[1]
         for (Map frame : env) {
-            if (frame[var]) return frame[var]
+            if (frame.containsKey(var)) return frame[var]
         }
         throw new IllegalArgumentException("Unbound variable: $var")
     }
@@ -672,13 +672,13 @@ class Scheme {
                     args -> assert args[0]; 'ok'
                 }),
                 'car'   : proc({
-                    args -> args[0].car
+                    args -> args[0][0]
                 }),
                 'cdr'   : proc({
-                    args -> args[0].cdr
+                    args -> args[0] != null && args[0].size() > 1 ? args[0][1..-1] : null
                 }),
                 'cons'  : proc({
-                    args -> cons(args[0], args[1])
+                    args -> [args[0]] + args[1]
                 }),
                 'null?' : proc({
                     args -> args[0] == null

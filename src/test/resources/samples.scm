@@ -1,5 +1,11 @@
 (begin
 
+  (define append
+    (lambda (x y)
+      (if (null? x)
+          y
+          (cons (car x) (append (cdr x) y)))))
+
   (define factorial
     (lambda (n)
       (if (= n 1)
